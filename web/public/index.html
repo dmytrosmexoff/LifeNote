@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Дневник жизни</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1220;--card:#141c2e;--card2:#1b2641;--line:#25314d;--ink:#e6ebf4;--mute:#8693ab;
+--accent:#f0b24a;--accent-ink:#1b1305;--cell:rgba(255,255,255,.06);--bad:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;line-height:1.5}
+[hidden]{display:none!important}
+main,.wrap{max-width:660px;margin:0 auto;padding:16px 14px 48px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}
+header .r{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--mute)}
+.link{background:none;border:0;color:var(--accent);cursor:pointer;font:inherit;padding:2px 4px}
+.weather{background:linear-gradient(160deg,#182b4d,#0f1a33);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.big{display:flex;align-items:center;gap:14px}
+.big .ico{font-size:54px;line-height:1}
+.big .t{font-size:42px;font-weight:700;line-height:1}
+.big .d{font-size:15px;margin-top:4px;color:#c9d6ee}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:8px;margin-top:14px}
+.cell{background:var(--cell);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--mute)}
+.cell b{display:block;font-size:16px;color:var(--ink)}
+.wh{font-size:14px;font-weight:600;margin:18px 0 8px}
+.strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.hr,.dy{flex:0 0 auto;background:var(--cell);border-radius:10px;padding:8px;text-align:center;font-size:13px;min-width:62px}
+.dy{min-width:88px}
+.hr .i,.dy .i{font-size:22px}
+.month{font-size:14px;margin:4px 0;color:#c9d6ee}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 10px}
+.faces{display:flex;gap:6px}
+.face{flex:1;font-size:30px;padding:8px 0;border:2px solid transparent;background:none;border-radius:12px;cursor:pointer;opacity:.4;transition:opacity .15s,transform .15s}
+.face:hover{opacity:.8}
+.face.on{opacity:1;border-color:var(--accent);transform:scale(1.08)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--ink);font-size:14px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.hint{font-size:13px;color:var(--mute);margin-top:8px;min-height:20px}
+.err{color:var(--bad)}
+.ok{color:#7ee2a8}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+.row2{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.setup{max-width:440px;margin:6vh auto 0}
+.setup h1{font-size:22px;margin:0 0 4px}
+.setup p{color:var(--mute);font-size:14px;margin:0 0 6px}
+.tip{font-size:12px;color:var(--mute);margin-top:12px}
+input,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--ink);font:inherit}
+textarea{height:100px;resize:vertical}
+input+input{margin-top:8px}
+button.save{margin-top:10px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:16px;font-weight:600;cursor:pointer}
+button.ghost{margin-top:8px;width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);font-size:16px;cursor:pointer}
+.auth{max-width:380px;margin:12vh auto 0}
+.auth h1{font-size:24px;margin:0 0 4px}
+.auth p{color:var(--mute);margin:0 0 16px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats b{display:block;font-size:20px}
+.stats span{font-size:12px;color:var(--mute)}
+.bywx{margin-top:14px;font-size:14px}
+.bywx div{display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--line)}
+.entry{padding:10px 0;border-top:1px solid var(--line);position:relative}
+.entry:first-child{border-top:0}
+.entry .d{font-size:13px;color:var(--mute)}
+.entry .w{font-size:12px;color:var(--mute);margin-top:2px}
+.entry .x{position:absolute;right:0;top:8px}
+</style>
+</head>
+<body>
+
+<div id="auth" class="wrap" hidden>
+  <section class="card auth">
+    <h1>Дневник жизни</h1>
+    <p>Войдите или создайте аккаунт</p>
+    <input id="u" placeholder="Логин" autocomplete="username">
+    <input id="p" type="password" placeholder="Пароль (от 8 символов)" autocomplete="current-password">
+    <button class="save" id="loginBtn">Войти</button>
+    <button class="ghost" id="regBtn">Создать аккаунт</button>
+    <div class="hint err" id="authMsg"></div>
+  </section>
+</div>
+
+<div id="setup" class="wrap" hidden>
+  <section class="card setup">
+    <h1>Подключение к базе данных</h1>
+    <p>Укажите свою базу MySQL или MariaDB. Таблицы создадутся сами.</p>
+    <div class="row2">
+      <div><label for="dbHost">Хост</label><input id="dbHost" placeholder="192.168.1.10"></div>
+      <div><label for="dbPort">Порт</label><input id="dbPort" value="3306" inputmode="numeric"></div>
+    </div>
+    <label for="dbUser">Пользователь</label><input id="dbUser" autocomplete="off">
+    <label for="dbPass">Пароль</label><input id="dbPass" type="password" autocomplete="new-password">
+    <label for="dbName">Имя базы данных</label><input id="dbName" placeholder="diary" autocomplete="off">
+    <button class="ghost" id="dbTest">Проверить подключение</button>
+    <button class="save" id="dbSave">Сохранить и подключиться</button>
+    <button class="ghost" id="dbCancel" hidden>Отмена</button>
+    <div class="hint" id="dbMsg"></div>
+    <div class="tip">База должна существовать заранее. Если БД стоит на этом же Umbrel, в поле хоста укажите host.docker.internal. Пароль сохраняется в файле настроек приложения на вашем сервере.</div>
+  </section>
+</div>
+
+<main id="app" hidden>
+  <header>
+    <h1>Дневник жизни</h1>
+    <div class="r">
+      <span id="who"></span>
+      <button class="link" id="cityBtn" title="Сменить город"></button>
+      <button class="link" id="dbBtn" title="Настройки базы данных">🗄 База</button>
+      <button class="link" id="logoutBtn">Выйти</button>
+    </div>
+  </header>
+
+  <section class="weather" id="weather">Загрузка погоды…</section>
+
+  <section class="card">
+    <h2>Как прошёл день?</h2>
+    <div class="faces" id="faces"></div>
+    <div class="hint" id="hint">Выберите оценку от 1 до 6</div>
+  </section>
+
+  <section class="card">
+    <h2>Как вы ощущали погоду сегодня?</h2>
+    <div class="chips" id="chips"></div>
+    <input id="feel" placeholder="Своими словами: например, ветер пробирал до костей">
+  </section>
+
+  <section class="card">
+    <h2>Запись</h2>
+    <textarea id="text" placeholder="Что было сегодня?"></textarea>
+    <button class="save" id="saveBtn">Сохранить запись</button>
+    <div class="hint" id="saveMsg"></div>
+  </section>
+
+  <section class="card">
+    <h2>Статистика дневника</h2>
+    <div class="stats">
+      <div><b id="stCount">0</b><span>записей</span></div>
+      <div><b id="stAvg">–</b><span>средняя оценка</span></div>
+      <div><b id="stBest">–</b><span>лучший день</span></div>
+    </div>
+    <div class="bywx" id="bywx"></div>
+  </section>
+
+  <section class="card">
+    <h2>Последние записи</h2>
+    <div id="list"></div>
+  </section>
+</main>
+
+<script>
+const FACES=[{e:"😢",t:"Грустно"},{e:"😕",t:"Так себе"},{e:"😐",t:"Нейтрально"},{e:"🙂",t:"Нормально"},{e:"😄",t:"Хорошо"},{e:"🤩",t:"Супер"}];
+const WC={0:["ясно","☀️"],1:["в основном ясно","🌤️"],2:["переменная облачность","⛅"],3:["пасмурно","☁️"],
+45:["туман","🌫️"],48:["изморозь, туман","🌫️"],51:["слабая морось","🌦️"],53:["морось","🌦️"],55:["сильная морось","🌦️"],
+56:["ледяная морось","🌧️"],57:["сильная ледяная морось","🌧️"],61:["слабый дождь","🌧️"],63:["дождь","🌧️"],65:["сильный дождь","🌧️"],
+66:["ледяной дождь","🌧️"],67:["сильный ледяной дождь","🌧️"],71:["слабый снег","🌨️"],73:["снег","🌨️"],75:["сильный снег","❄️"],
+77:["снежная крупа","❄️"],80:["слабый ливень","🌦️"],81:["ливень","🌧️"],82:["сильный ливень","⛈️"],85:["снегопад","🌨️"],86:["сильный снегопад","❄️"],
+95:["гроза","⛈️"],96:["гроза с градом","⛈️"],99:["сильная гроза с градом","⛈️"]};
+const DIRS=["С","СВ","В","ЮВ","Ю","ЮЗ","З","СЗ"];
+const MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+const WT={sun:["☀️","Солнечные дни"],cloud:["☁️","Облачные дни"],rain:["🌧️","Дождливые дни"],snow:["❄️","Снежные дни"]};
+const FEELS=["Жарко","Тепло","Комфортно","Прохладно","Холодно","Душно","Сыро","Ветрено","Солнечно приятно","Давит на голову"];
+
+const $=id=>document.getElementById(id);
+const wc=c=>WC[c]||["—","🌡️"];
+const dir=d=>DIRS[Math.round(d/45)%8];
+const r0=x=>Math.round(x), r1=x=>(Math.round(x*10)/10).toFixed(1);
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const sum=a=>a.reduce((s,x)=>s+(x||0),0);
+const avg=a=>{a=a.filter(x=>x!=null);return a.length?sum(a)/a.length:0};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let me=null, rate=0, wsnap="", wtype="", entries=[];
+const feels=new Set();
+
+async function api(url,method,body){
+  const r=await fetch(url,{method:method||"GET",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:body?JSON.stringify(body):undefined});
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok){const e=new Error(j.error||("Ошибка "+r.status));e.status=r.status;throw e}
+  return j;
+}
+
+/* ---- вход и регистрация ---- */
+async function doAuth(kind){
+  $("authMsg").textContent="";
+  try{me=await api("api/"+kind,"POST",{username:$("u").value.trim(),password:$("p").value});$("p").value="";start()}
+  catch(e){$("authMsg").textContent=e.message}
+}
+$("loginBtn").onclick=()=>doAuth("login");
+$("regBtn").onclick=()=>doAuth("register");
+$("p").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth("login")});
+$("logoutBtn").onclick=async()=>{try{await api("api/logout","POST")}catch(e){}location.reload()};
+$("cityBtn").onclick=async()=>{
+  const q=prompt("Ваш город (например: Токио, Москва, Hiroshima)",me.city);
+  if(!q)return;
+  try{const r=await api("api/location","POST",{q});me.city=r.city;$("cityBtn").textContent="📍 "+me.city;loadWeather()}
+  catch(e){alert(e.message)}
+};
+function start(){
+  showView("app");
+  $("who").textContent=me.username;$("cityBtn").textContent="📍 "+me.city;
+  loadWeather();loadEntries();
+}
+function showView(v){$("auth").hidden=v!=="auth";$("app").hidden=v!=="app";$("setup").hidden=v!=="setup"}
+function fillSetup(d,canCancel,msg){
+  d=d||{};$("dbHost").value=d.host||"";$("dbPort").value=d.port||3306;$("dbUser").value=d.user||"";
+  $("dbPass").value="";$("dbName").value=d.database||"";
+  $("dbCancel").hidden=!canCancel;
+  $("dbPass").placeholder=canCancel?"Пусто — оставить прежний":"";
+  $("dbMsg").className="hint "+(msg?"err":"");$("dbMsg").textContent=msg||"";
+  showView("setup");
+}
+function dbForm(){return{host:$("dbHost").value.trim(),port:$("dbPort").value.trim(),user:$("dbUser").value.trim(),password:$("dbPass").value,database:$("dbName").value.trim()}}
+$("dbTest").onclick=async()=>{
+  $("dbMsg").className="hint";$("dbMsg").textContent="Проверяю…";
+  try{const r=await api("api/setup/test","POST",dbForm());
+    $("dbMsg").className="hint "+(r.ok?"ok":"err");$("dbMsg").textContent=r.ok?r.message:r.error}
+  catch(e){$("dbMsg").className="hint err";$("dbMsg").textContent=e.message}
+};
+$("dbSave").onclick=async()=>{
+  $("dbMsg").className="hint";$("dbMsg").textContent="Подключаюсь и создаю таблицы…";
+  try{const r=await api("api/setup/save","POST",dbForm());
+    if(r.ok){location.reload()}else{$("dbMsg").className="hint err";$("dbMsg").textContent=r.error}}
+  catch(e){$("dbMsg").className="hint err";$("dbMsg").textContent=e.message}
+};
+$("dbCancel").onclick=()=>showView("app");
+$("dbBtn").onclick=async()=>{try{fillSetup(await api("api/setup/current"),true)}catch(e){alert(e.message)}};
+async function boot(){
+  try{
+    const s=await api("api/status");
+    if(!s.connected){fillSetup(s.db,false,s.error);return}
+  }catch(e){}
+  try{me=await api("api/me");start()}catch(e){showView("auth")}
+}
+
+/* ---- оценка и ощущения ---- */
+FACES.forEach((f,i)=>{
+  const b=document.createElement("button");
+  b.className="face";b.textContent=f.e;b.title=f.t;b.setAttribute("aria-label",(i+1)+" — "+f.t);
+  b.onclick=()=>{rate=i+1;
+    document.querySelectorAll(".face").forEach((n,j)=>n.classList.toggle("on",j===i));
+    $("hint").textContent=rate+" из 6 — "+f.t};
+  $("faces").appendChild(b);
+});
+FEELS.forEach(n=>{
+  const b=document.createElement("button");
+  b.className="chip";b.textContent=n;
+  b.onclick=()=>{feels.has(n)?feels.delete(n):feels.add(n);b.classList.toggle("on",feels.has(n))};
+  $("chips").appendChild(b);
+});
+
+/* ---- погода ---- */
+function dayType(code,rain,snow){
+  if(snow>0.5||[71,73,75,77,85,86].includes(code))return "snow";
+  if(rain>=1||[51,53,55,61,63,65,80,81,82,95,96,99].includes(code))return "rain";
+  if(code<=1)return "sun";
+  return "cloud";
+}
+function monthStats(d){
+  const n=d.time.length,c={sun:0,cloud:0,rain:0,snow:0};
+  for(let i=0;i<n;i++)c[dayType(d.weather_code[i],d.precipitation_sum[i]||0,d.snowfall_sum[i]||0)]++;
+  const mx=d.temperature_2m_max.map(x=>x==null?-99:x), mn=d.temperature_2m_min.map(x=>x==null?99:x);
+  const tmax=Math.max(...mx), tmin=Math.min(...mn);
+  return {n,c,avgT:avg(d.temperature_2m_mean),tmax,tmin,dMax:d.time[mx.indexOf(tmax)],dMin:d.time[mn.indexOf(tmin)],
+    precip:sum(d.precipitation_sum),snow:sum(d.snowfall_sum),wind:Math.max(...d.wind_speed_10m_max.map(x=>x||0)),
+    sunH:sum(d.sunshine_duration)/3600};
+}
+const arch=(a,b)=>api("api/wx/archive?start="+ymd(a)+"&end="+ymd(b)).then(j=>j.daily).catch(()=>null);
+const cell=(a,b)=>'<div class="cell">'+a+'<b>'+b+'</b></div>';
+
+async function loadWeather(){
+  $("weather").textContent="Загрузка погоды…";
+  try{
+    const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+    const jobs=[api("api/wx/forecast"),arch(new Date(y,m-1,1),new Date(y,m,0))];
+    for(let k=1;k<=5;k++)jobs.push(arch(new Date(y-k,m+1,1),new Date(y-k,m+2,0)));
+    const [f,last,...past]=await Promise.all(jobs);
+    const c=f.current, d=f.daily, h=f.hourly, w=wc(c.weather_code), hpa=r0(c.pressure_msl*0.750062);
+    wtype=dayType(d.weather_code[0],d.precipitation_sum[0]||0,d.snowfall_sum[0]||0);
+    wsnap=r1(c.temperature_2m)+"°C (ощущается "+r1(c.apparent_temperature)+"°C), "+w[0]+", ветер "+dir(c.wind_direction_10m)+" "+r1(c.wind_speed_10m)+" м/с, влажность "+c.relative_humidity_2m+"%, давление "+hpa+" мм рт. ст., осадки за день "+r1(d.precipitation_sum[0])+" мм, мин/макс "+r0(d.temperature_2m_min[0])+"/"+r0(d.temperature_2m_max[0])+"°C";
+    const tm=s=>s.slice(11,16);
+    let html='<div class="big"><div class="ico">'+w[1]+'</div><div><div class="t">'+r1(c.temperature_2m)+'°C</div><div class="d">'+w[0]+', ощущается как '+r1(c.apparent_temperature)+'°C</div></div></div>';
+    html+='<div class="grid">'+
+      cell("Сегодня мин / макс",r0(d.temperature_2m_min[0])+"° / "+r0(d.temperature_2m_max[0])+"°")+
+      cell("Ветер",dir(c.wind_direction_10m)+", "+r1(c.wind_speed_10m)+" м/с")+
+      cell("Порывы",r1(c.wind_gusts_10m)+" м/с")+
+      cell("Влажность",c.relative_humidity_2m+"%")+
+      cell("Давление",hpa+" мм рт. ст.")+
+      cell("Облачность",c.cloud_cover+"%")+
+      cell("Осадки сейчас",c.precipitation+" мм")+
+      cell("Осадки за день",r1(d.precipitation_sum[0])+" мм, шанс "+d.precipitation_probability_max[0]+"%")+
+      cell("УФ-индекс макс.",r1(d.uv_index_max[0]))+
+      cell("Восход",tm(d.sunrise[0]))+
+      cell("Закат",tm(d.sunset[0]))+'</div>';
+    let s=h.time.findIndex(t=>t>=c.time.slice(0,13)+":00"); if(s<0)s=0;
+    html+='<div class="wh">Ближайшие 24 часа</div><div class="strip">';
+    for(let i=s;i<s+24&&i<h.time.length;i+=2)
+      html+='<div class="hr">'+tm(h.time[i])+'<div class="i">'+wc(h.weather_code[i])[1]+'</div><b>'+r0(h.temperature_2m[i])+'°</b><div>💧'+h.precipitation_probability[i]+'%</div></div>';
+    html+='</div><div class="wh">Прогноз на 7 дней</div><div class="strip">';
+    for(let i=0;i<d.time.length;i++){
+      const dt=new Date(d.time[i]+"T12:00");
+      html+='<div class="dy">'+dt.toLocaleDateString("ru",{weekday:"short",day:"numeric"})+'<div class="i">'+wc(d.weather_code[i])[1]+'</div><b>'+r0(d.temperature_2m_max[i])+'° / '+r0(d.temperature_2m_min[i])+'°</b><div>💧'+r1(d.precipitation_sum[i])+' мм</div><div>'+r1(d.wind_speed_10m_max[i])+' м/с</div></div>';
+    }
+    html+='</div>';
+    if(last){
+      const L=monthStats(last);
+      html+='<div class="wh">Прошлый месяц ('+MONTHS[(m+11)%12]+')</div>'+
+        '<div class="month">Средняя температура '+r1(L.avgT)+'°C. Самый тёплый день: '+r0(L.tmax)+'°C ('+L.dMax.slice(5)+'), самый холодный: '+r0(L.tmin)+'°C ('+L.dMin.slice(5)+').</div>'+
+        '<div class="month">Дней: ☀️ солнечных '+L.c.sun+', ☁️ облачных '+L.c.cloud+', 🌧️ дождливых '+L.c.rain+', ❄️ снежных '+L.c.snow+' (из '+L.n+').</div>'+
+        '<div class="month">Осадков всего '+r0(L.precip)+' мм, снега '+r1(L.snow)+' см, максимальный ветер '+r1(L.wind)+' м/с, солнца около '+r0(L.sunH)+' ч.</div>';
+    }
+    const P=past.filter(Boolean).map(monthStats);
+    if(P.length){
+      const A=k=>avg(P.map(x=>x[k])), C=k=>avg(P.map(x=>x.c[k]/x.n*30));
+      html+='<div class="wh">Ожидается в следующем месяце ('+MONTHS[(m+1)%12]+')</div>'+
+        '<div class="month">Оценка по тому же месяцу за последние '+P.length+' лет, это не точный прогноз.</div>'+
+        '<div class="month">Средняя температура около '+r1(A("avgT"))+'°C, обычно от '+r0(A("tmin"))+' до '+r0(A("tmax"))+'°C.</div>'+
+        '<div class="month">Типично дней: ☀️ '+r0(C("sun"))+', ☁️ '+r0(C("cloud"))+', 🌧️ '+r0(C("rain"))+', ❄️ '+r0(C("snow"))+' (на 30 дней). Осадков около '+r0(A("precip"))+' мм.</div>';
+    }
+    $("weather").innerHTML=html;
+  }catch(e){
+    $("weather").innerHTML='<b>Не удалось загрузить погоду.</b><div class="month">Проверьте, что у сервера есть интернет, и обновите страницу. '+esc(e.message||"")+'</div>';
+  }
+}
+
+/* ---- записи ---- */
+async function loadEntries(){try{entries=(await api("api/entries")).entries;render()}catch(e){}}
+$("saveBtn").onclick=async()=>{
+  $("saveMsg").className="hint";$("saveMsg").textContent="";
+  if(!rate){alert("Сначала выберите оценку дня");return}
+  try{
+    await api("api/entries","POST",{date:ymd(new Date()),rate,text:$("text").value.trim(),feel:[...feels],feelText:$("feel").value.trim(),weather:wsnap,wtype});
+    $("text").value="";$("feel").value="";feels.clear();
+    document.querySelectorAll(".chip").forEach(n=>n.classList.remove("on"));
+    $("saveMsg").textContent="Запись сохранена";
+    await loadEntries();
+  }catch(e){$("saveMsg").className="hint err";$("saveMsg").textContent=e.message}
+};
+async function del(id){
+  if(!confirm("Удалить эту запись?"))return;
+  try{await api("api/entries/"+id,"DELETE");await loadEntries()}catch(e){alert(e.message)}
+}
+function render(){
+  const a=entries;
+  $("stCount").textContent=a.length;
+  $("stAvg").textContent=a.length?(a.reduce((s,x)=>s+x.rate,0)/a.length).toFixed(1):"–";
+  $("stBest").textContent=a.length?FACES[a.reduce((m,x)=>x.rate>m.rate?x:m,a[0]).rate-1].e:"–";
+  let b="";
+  Object.keys(WT).forEach(k=>{
+    const z=a.filter(x=>x.wtype===k);
+    if(z.length)b+='<div><span>'+WT[k][0]+' '+WT[k][1]+' ('+z.length+')</span><b>средняя оценка '+(z.reduce((s,x)=>s+x.rate,0)/z.length).toFixed(1)+'</b></div>';
+  });
+  $("bywx").innerHTML=b?'<div class="wh" style="border:0">Оценка дня и погода</div>'+b:"";
+  $("list").innerHTML=a.length?a.slice(0,15).map(x=>{
+    const fl=(x.feel||[]).join(", ")+(x.feelText?((x.feel||[]).length?". ":"")+x.feelText:"");
+    return '<div class="entry"><button class="link x" data-id="'+x.id+'" title="Удалить">✕</button><div class="d">'+esc(x.date)+' '+FACES[x.rate-1].e+' '+x.rate+'/6</div><div>'+(esc(x.text)||"<i>без текста</i>")+'</div>'+
+      (x.weather?'<div class="w">Погода: '+esc(x.weather)+'</div>':"")+(fl?'<div class="w">Ощущение: '+esc(fl)+'</div>':"")+'</div>';
+  }).join(""):'<div class="hint">Записей пока нет</div>';
+  document.querySelectorAll(".entry .x").forEach(n=>n.onclick=()=>del(n.dataset.id));
+}
+boot();
+</script>
+</body>
+</html>

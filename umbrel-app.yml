@@ -1,0 +1,21 @@
+manifestVersion: 1
+id: life-diary
+category: files
+name: Дневник жизни
+version: "1.0.0"
+tagline: Личный дневник с оценкой дня и подробной погодой
+description: >-
+  Дневник жизни: каждый день вы ставите оценку от 1 до 6 смайликами, пишете запись
+  и отмечаете, как ощущали погоду. Вверху показана подробная погода, статистика
+  прошлого месяца и оценка следующего. Данные хранятся в MySQL на вашем сервере.
+developer: Local
+website: https://umbrel.com
+dependencies: []
+repo: https://github.com/
+support: https://github.com/
+port: 3000
+gallery: []
+path: ""
+releaseNotes: Первая версия.
+submitter: Local
+submission: https://github.com/
